@@ -17,11 +17,11 @@
         <nav>
             <button type="button" aria-label="Search">&#8981;</button>
 
-            <button type="button">
+            <button type="button" id="registerButton">
                 Register
             </button>
 
-            <button type="button">
+            <button type="button" id="loginButton">
                 Sign in
             </button>
         </nav>
@@ -38,24 +38,24 @@
                 <button class="category" data-category="packaging">Packaging materials and cartons</button>
                 <button class="category" data-category="plastic">Plastic materials</button>
                 <button class="category" data-category="electrical">Electrical materials</button>
-           </div>
+            </div>
 
             <div class="hero-content">
                 <h1>
                     Buy and Sell<br>
                     Everything with Faid!
                 </h1>
-                <h2>Discover affordable products from companies 
-                    with Faid. Find great deals, 
-                    explore different products, and buy what 
-                    you need at lower prices.</h2>
+                <h2>
+                    Discover affordable products from companies
+                    with Faid. Find great deals,
+                    explore different products, and buy what
+                    you need at lower prices.
+                </h2>
 
                 <form action="#" method="get">
-                    <input
-                        type="search"
-                        name="search"
-                        placeholder="Search for products..."
-                    >
+                    <input type="search"
+                           name="search"
+                           placeholder="Search for products...">
                     <button type="submit">
                         Search
                     </button>
@@ -63,12 +63,62 @@
             </div>
 
             <div class="hero-image">
-                <img
-                    src="Img/storehouse.jpg"
-                    alt="Main image"
-                >
+                <img src="Img/storehouse.jpg"
+                     alt="Main image">
             </div>
         </section>
     </main>
+
+    <div class="modal" id="registerM">
+
+        <div class="modal-content">
+            <button type="button" class="close-modal" aria-label="Close">
+                &times;
+            </button>
+            <h2>Create Account</h2>
+            <form id="registerF">
+                <input type="text" name="companyName"
+                       placeholder="Company Name" required>
+
+                <input type="email" name="email"
+                       placeholder="Email Address" required>
+
+                <input type="tel" name="phone"
+                       placeholder="Phone Number" required>
+
+                <input type="text" name="address"
+                       placeholder="Company Address" required>
+
+                <input type="password" name="password"
+                       placeholder="Password" required>
+
+                <button type="submit">Create Account</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal" id="loginM">
+        <div class="modal-content">
+            <button type="button" class="close-modal"
+                    aria-label="Close">
+                &times;
+            </button>
+
+            <h2>Welcome Back</h2>
+
+            <form id="loginForm">
+                <input type="email" name="email"
+                       placeholder="Email Address" required>
+
+                <input type="password" name="password"
+                       placeholder="Password" required>
+
+                <button type="submit">Sign In</button>
+            </form>
+        </div>
+    </div>
+
+
+    <script src="JS/home.js"></script>
 </body>
 </html>
