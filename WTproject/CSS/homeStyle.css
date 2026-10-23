@@ -192,9 +192,10 @@ button {
     right: 15px;
     border: none;
     background: transparent;
+    color: #355681;
     font-size: 28px;
     cursor: pointer;
-    z-index:10;
+    z-index: 10;
 }
 
 .modal-content h2 {
