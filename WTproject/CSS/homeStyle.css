@@ -46,7 +46,7 @@ button {
     border-radius: 20px;
     color: #ffffff;
     background-color: rgb(21, 48, 88);
-    font-size:0.9rem
+    font-size: 0.9rem
 }
 
 .hero {
@@ -55,6 +55,7 @@ button {
     align-items: center;
     gap: 30px;
 }
+
 .category_material {
     width: 100%;
     display: flex;
@@ -67,29 +68,33 @@ button {
     border: none;
     box-shadow: none;
 }
+
 .category_material .category {
-     padding: 12px 18px;
-     background: #cbdcf7;
-     color: #000f;
-     border: none;
-     border-radius: 25px;
-     font-size: 14px;
-     font-weight: 600;
-     cursor: pointer;
-     transition: all 0.25s ease;
+    padding: 12px 18px;
+    background: #cbdcf7;
+    color: #000f;
+    border: none;
+    border-radius: 25px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s ease;
 
 }
+
 .category_material .category:hover {
-     background: #cbdcf7;
-     transform: translateY(-2px);
+    background: #cbdcf7;
+    transform: translateY(-2px);
 
 }
+
 .category_material .category.active {
-            background: #355681;
-            color: white;
-            box-shadow: 0 4px 10px #35568130;
+    background: #355681;
+    color: white;
+    box-shadow: 0 4px 10px #35568130;
 
 }
+
 .hero-content {
     flex: 1;
     min-width: 280px;
@@ -100,69 +105,72 @@ button {
     gap: 18px;
     padding: 25px 0;
 }
+
 .hero-content h1 {
-        margin: 0;
-        color: #244b82;
-        font-size: clamp(32px, 4vw, 48px);
-        font-weight: 700;
-        line-height: 1.2;
+    margin: 0;
+    color: #244b82;
+    font-size: clamp(32px, 4vw, 48px);
+    font-weight: 700;
+    line-height: 1.2;
 
 }
+
 .hero-content h2 {
-        margin: 0;
-        color: #64748b;
-        font-size: 17px;
-        font-weight: 400;
-        line-height: 1.8;
-        max-width: 520px;
+    margin: 0;
+    color: #64748b;
+    font-size: 17px;
+    font-weight: 400;
+    line-height: 1.8;
+    max-width: 520px;
+}
 
-}   
 .hero-content form {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        width: 100%;
-        max-width: 500px;
-        padding: 8px;
-        background: white;
-        border-radius: 25px;
-        box-sizing: border-box;
-    }
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    max-width: 500px;
+    padding: 8px;
+    background: white;
+    border-radius: 25px;
+    box-sizing: border-box;
+}
 
-    .hero-content input[type="search"] {
-        flex: 1;
-        min-width: 0;
-        border: none;
-        outline: none;
-        background: transparent;
-        padding: 10px 12px;
-        font-size: 15px;
-    }
+.hero-content input[type="search"] {
+    flex: 1;
+    min-width: 0;
+    border: none;
+    outline: none;
+    background: transparent;
+    padding: 10px 12px;
+    font-size: 15px;
+}
 
-    .hero-content form button {
-        border: none;
-        border-radius: 20px;
-        padding: 12px 20px;
-        background: #355681;
-        color: white;
-        cursor: pointer;
-    }
+.hero-content form button {
+    border: none;
+    border-radius: 20px;
+    padding: 12px 20px;
+    background: #355681;
+    color: white;
+    cursor: pointer;
+}
 
 
-        .hero-content form button:hover {
-            background: #24416a;
-        }
+.hero-content form button:hover {
+    background: #24416a;
+}
+
 .hero-image {
     flex: 1;
     min-width: 280px;
 }
 
 .hero-image img {
-        width: 100%;
-        height: 380%;
-        object-fit: cover;
-        border-radius: 15px;
-    }
+    width: 100%;
+    height: 380%;
+    object-fit: cover;
+    border-radius: 15px;
+}
 
 .modal {
     display: none;
@@ -175,6 +183,7 @@ button {
     align-items: center;
     z-index: 1000;
 }
+
 .modal-content {
     background: white;
     width: 90%;
@@ -200,9 +209,9 @@ button {
 we4
 .modal-content h2 {
     text-align: center;
-    color: #355681;
     margin-bottom: 25px;
 }
+
 .modal-content form {
     display: flex;
     flex-direction: column;
@@ -217,6 +226,7 @@ we4
     box-sizing: border-box;
     font-size: 14px;
 }
+
 .modal-content form button {
     padding: 13px;
     background: #355681;
@@ -225,4 +235,43 @@ we4
     border-radius: 8px;
     cursor: pointer;
     font-size: 15px;
+}
+
+.products {
+    padding: 40px 25px;
+}
+
+.products h2 {
+    font-size: 40px;
+    color: #355681;
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+.product-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.product-card {
+    width: 300px;
+    box-shadow: 0 2px 10px rgb(223, 232, 255, 0.9);
+    border-radius: 12px;
+    padding: 15px;
+    background-color: white;
+}
+
+.product-card img {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.product-card button {
+    border: none;
+    border-radius: 6px;
+    padding: 10px 15px;
+    cursor: pointer;
 }
