@@ -105,7 +105,7 @@
 
             <h2>Welcome Back</h2>
 
-            <form id="loginForm" action="Faid Project/login.php" method="POST">
+            <form id="loginForm" action="FaidProject/login.php" method="POST">
                 <input type="email" name="email"
                        placeholder="Email Address" required>
 
@@ -117,17 +117,40 @@
         </div>
     </div>
     <section class="products">
-    <h2>Buy Now!</h2>
-    <div class="product-container">
-        <div class="product-card">
-            <img src="" alt="Product">
-            <h3>Product Name</h3>
-            <p>Product description</p>
-            <p>Price: $10</p>
-            <button>View Details</button>
-            <button>Add to Cart</button>
+        <div class="product-container">
+            <buttont typeof="button" class="Add-material" id="addMaterialBtn">
+                <span>+</span>
+                <h3>Add Material</h3>
+                <p>Add your supplus materials</p>
+            </buttont >
+            <div class="modal" id="addMaterialModal">
+                <div class="modal-content">
+                    <div class="close-modal" id="closeAddModel">&times;</div>
+                    <h2>Add New Material</h2>
+                    <form id="addMaterialForm" method="post" enctype="multipart/form-data">
+                        <input type="text" name="material_name" placeholder="Material Name" required>
+                        <label>Category</label>
+                        <select name="category" required>
+                            <option value="">Select Category</option>
+                            <option value="wood">Wooden materials</option>
+                            <option value="metal">Iron and metals</option>
+                            <option value="packaging">Packaging materials and cartons</option>
+                            <option value="plastic">Plastic materials</option>
+                            <option value="electrical">Electrical materials</option>
+                        </select>
+                        <label>description</label>
+                        <textarea name="description" placeholder="Material Description" required></textarea>
+                        <label>Quantity</label>
+                        <input type="number" name="quantity" min="1" required>
+                        <label>Price</label>
+                        <input type="number" name="price" min="0" step="0.01" required>
+                        <label>Material Image</label>
+                        <input type="file" name="image" accept="image/*">
+                        <button type="submit">Add Material</button>
+                    </form>
+                </div>
+            </div>
         </div>
-    </div>
 </section>
     <script src="JS/home.js"></script>
 </body>

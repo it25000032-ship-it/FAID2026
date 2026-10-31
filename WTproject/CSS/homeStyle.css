@@ -69,31 +69,28 @@ button {
     box-shadow: none;
 }
 
-.category_material .category {
-    padding: 12px 18px;
-    background: #cbdcf7;
-    color: #000f;
-    border: none;
-    border-radius: 25px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.25s ease;
-
+category_material .category {
+        padding: 12px 18px;
+        background: #cbdcf7;
+        color: #000f;
+        border: none;
+        border-radius: 25px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.25s ease;
 }
 
-.category_material .category:hover {
-    background: #cbdcf7;
-    transform: translateY(-2px);
+ .category_material .category:hover {
+            background: #cbdcf7;
+            transform: translateY(-2px);
+ }
 
-}
-
-.category_material .category.active {
-    background: #355681;
-    color: white;
-    box-shadow: 0 4px 10px #35568130;
-
-}
+ .category_material .category.active {
+            background: #355681;
+            color: white;
+            box-shadow: 0 4px 10px #35568130;
+ }
 
 .hero-content {
     flex: 1;
@@ -107,71 +104,64 @@ button {
 }
 
 .hero-content h1 {
-    margin: 0;
-    color: #244b82;
-    font-size: clamp(32px, 4vw, 48px);
-    font-weight: 700;
-    line-height: 1.2;
-
+        margin: 0;
+        color: #244b82;
+        font-size: clamp(32px, 4vw, 48px);
+        font-weight: 700;
+        line-height: 1.2;
 }
 
 .hero-content h2 {
-    margin: 0;
-    color: #64748b;
-    font-size: 17px;
-    font-weight: 400;
-    line-height: 1.8;
-    max-width: 520px;
+        margin: 0;
+        color: #64748b;
+        font-size: 17px;
+        font-weight: 400;
+        line-height: 1.8;
+        max-width: 520px;
 }
 
 .hero-content form {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    width: 100%;
-    max-width: 500px;
-    padding: 8px;
-    background: white;
-    border-radius: 25px;
-    box-sizing: border-box;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+        max-width: 500px;
+        padding: 8px;
+        background: white;
+        border-radius: 25px;
+        box-sizing: border-box;
 }
 
 .hero-content input[type="search"] {
-    flex: 1;
-    min-width: 0;
-    border: none;
-    outline: none;
-    background: transparent;
-    padding: 10px 12px;
-    font-size: 15px;
+        flex: 1;
+        min-width: 0;
+        border: none;
+        outline: none;
+        background: transparent;
+        padding: 10px 12px;
+        font-size: 15px;
+ }
+ .hero-content form button {
+        border: none;
+        border-radius: 20px;
+        padding: 12px 20px;
+        background: #355681;
+        color: white;
+        cursor: pointer;
 }
-
-.hero-content form button {
-    border: none;
-    border-radius: 20px;
-    padding: 12px 20px;
-    background: #355681;
-    color: white;
-    cursor: pointer;
-}
-
-
 .hero-content form button:hover {
-    background: #24416a;
+            background: #24416a;
 }
-
 .hero-image {
     flex: 1;
     min-width: 280px;
 }
-
 .hero-image img {
-    width: 100%;
-    height: 380%;
-    object-fit: cover;
-    border-radius: 15px;
+        width: 100%;
+        height: 380%;
+        object-fit: cover;
+        border-radius: 15px;
 }
-
 .modal {
     display: none;
     position: fixed;
@@ -183,7 +173,6 @@ button {
     align-items: center;
     z-index: 1000;
 }
-
 .modal-content {
     background: white;
     width: 90%;
@@ -193,8 +182,6 @@ button {
     box-sizing: border-box;
     position: relative;
 }
-
-
 .close-modal {
     position: absolute;
     top: 12px;
@@ -211,13 +198,11 @@ we4
     text-align: center;
     margin-bottom: 25px;
 }
-
 .modal-content form {
     display: flex;
     flex-direction: column;
     gap: 14px;
 }
-
 .modal-content input {
     width: 100%;
     padding: 12px;
@@ -226,7 +211,6 @@ we4
     box-sizing: border-box;
     font-size: 14px;
 }
-
 .modal-content form button {
     padding: 13px;
     background: #355681;
@@ -236,7 +220,6 @@ we4
     cursor: pointer;
     font-size: 15px;
 }
-
 .products {
     padding: 40px 25px;
 }
@@ -246,8 +229,8 @@ we4
     color: #355681;
     margin-bottom: 25px;
     text-align: center;
-}
 
+}
 .product-container {
     display: flex;
     flex-wrap: wrap;
@@ -261,17 +244,121 @@ we4
     padding: 15px;
     background-color: white;
 }
-
 .product-card img {
-    width: 100%;
-    height: 160px;
-    object-fit: cover;
-    border-radius: 8px;
+     width: 100%;
+     height: 160px;
+     object-fit: cover;
+     border-radius: 8px;
 }
-
 .product-card button {
     margin: 5px auto;
     justify-content: center;
     padding-left: 20px;
     padding-right: 20px;
+    }
+.Add-material {
+    width: 280px;
+    min-height: 220px;
+    box-shadow: 0 2px 10px rgb(223, 232, 255, 0.9);
+    border-radius: 12px;
+    padding: 15px;
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    border: 2px dashed #9bb5d5;
+}
+
+    .Add-material span {
+        font-size: 45px;
+        color: #355681;
+    }
+
+    .Add-material h3 {
+        color: #355681;
+        margin: 10px 0;
+    }
+
+    .Add-material p {
+        color: #777;
+    }
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.modal-content {
+    background: white;
+    width: 100%;
+    max-width: 500px;
+    max-height: 85vh;
+    overflow-y: auto;
+    padding: 30px;
+    border-radius: 15px;
+    position: relative;
+    box-sizing: border-box;
+}
+
+.modal-content h2 {
+    color: #355681;
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.modal-content form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.modal-content label {
+    color: #355681;
+    font-weight: 600;
+    margin-top: 5px;
+}
+
+.modal-content input,
+.modal-content select,
+.modal-content textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #d5dce8;
+    border-radius: 8px;
+    box-sizing: border-box;
+    font-size: 14px;
+    font-family: inherit;
+}
+
+.modal-content textarea {
+    min-height: 90px;
+    resize: vertical;
+}
+
+.modal-content form button {
+    padding: 13px;
+    background: #355681;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 15px;
+    margin-top: 10px;
+}
+
+.close-modal {
+    position: absolute;
+    right: 18px;
+    top: 12px;
+    font-size: 25px;
+    cursor: pointer;
+    color: #355681;
 }
