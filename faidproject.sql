@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 30, 2026 at 06:51 PM
+-- Generation Time: Nov 05, 2026 at 08:08 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -24,6 +24,20 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `admins`
+--
+
+CREATE TABLE `admins` (
+  `admin_id` int(11) NOT NULL,
+  `admin_name` varchar(100) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `password_hash` varchar(255) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `companies`
 --
 
@@ -36,6 +50,16 @@ CREATE TABLE `companies` (
   `password_hash` varchar(255) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `companies`
+--
+
+INSERT INTO `companies` (`company_id`, `company_name`, `email`, `phone`, `address`, `password_hash`, `created_at`) VALUES
+(1, 'Batool', 'hwrwtshan@gmail.com', '07712428954', 'Basrh', '$2y$10$d4KKWkvelKPuC8aqYXkqNO89WTHI2alLtddYHBLNU4b.dLZJVma2u', '2026-10-30 18:29:05'),
+(2, 'النور', 'ALNOOE@gmail.com', '07712428954', 'Basrh', '$2y$10$sz/NtXLzZ3Qz.OvbK6gGh.99NSwoM55Jj/ywO5DbndEBqXyjsVxn.', '2026-10-31 07:47:04'),
+(10, 'النور', 'ALNOOE4444@gmail.com', '07712428954', 'Basrh', '$2y$10$AOX2pMLX6GR/oA.tV0cKHOaaxFap3DbDHUSXYCyIFlXDtzGHZcuI.', '2026-10-31 08:19:54'),
+(21, 'النور', 'ALNOOE5566@gmail.com', '07712428954', 'Basrh', '$2y$10$dgaUiMncZt5PBxlfMwBycOKYnATsQOvFwBxJv1QevtGA2FS0rw1eS', '2026-10-31 09:02:05');
 
 -- --------------------------------------------------------
 
@@ -54,6 +78,16 @@ CREATE TABLE `materials` (
   `image_path` varchar(255) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `materials`
+--
+
+INSERT INTO `materials` (`material_id`, `company_id`, `material_name`, `category`, `description`, `quantity`, `price`, `image_path`, `created_at`) VALUES
+(1, 1, 'Iron Sheets', 'metal', 'Iron sheets', 100, 50.00, NULL, '2026-10-31 11:20:03'),
+(2, 1, 'Wood Boards', 'wood', 'Wood boards', 200, 30.00, NULL, '2026-10-31 11:20:03'),
+(3, 1, 'Plastic Rolls', 'plastic', 'Plastic rolls', 150, 20.00, NULL, '2026-10-31 11:20:03'),
+(4, 2, 'iron', 'metal', 'Metal iron for building casting', 2, 21.74, 'uploads/e3123f5f41684f9033284a92283b511b.webp', '2026-10-31 20:46:48');
 
 -- --------------------------------------------------------
 
@@ -85,6 +119,13 @@ CREATE TABLE `order_items` (
 --
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `admins`
+--
+ALTER TABLE `admins`
+  ADD PRIMARY KEY (`admin_id`),
+  ADD UNIQUE KEY `email` (`email`);
 
 --
 -- Indexes for table `companies`
@@ -120,16 +161,22 @@ ALTER TABLE `order_items`
 --
 
 --
+-- AUTO_INCREMENT for table `admins`
+--
+ALTER TABLE `admins`
+  MODIFY `admin_id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `companies`
 --
 ALTER TABLE `companies`
-  MODIFY `company_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `company_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
 -- AUTO_INCREMENT for table `materials`
 --
 ALTER TABLE `materials`
-  MODIFY `material_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `material_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `orders`
