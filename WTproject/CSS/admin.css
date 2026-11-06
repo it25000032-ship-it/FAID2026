@@ -196,7 +196,7 @@ tbody tr:last-child td {
     background: #fff2d9;
     color: #a87518;
 }
-button {
+button  {
     border: none;
     padding: 7px 12px;
     border-radius: 6px;
@@ -204,19 +204,20 @@ button {
     font-size: 12px;
     color: white;
 }
+
 .view-btn,
 .edit-btn {
-    background: #355681;
+    background: rgb(21, 48, 88);
 }
 .delete-btn {
-    background: #c95757;
+    background: #b92a2a;
 }
 .view-btn:hover,
 .edit-btn:hover {
-    background: #24416a;
+    background: rgb(21, 48, 88);
 }
 .delete-btn:hover {
-    background: #a93c3c;
+    background: #b92a2a;
 }
 @media (max-width: 1000px) {
     .stats-container {
@@ -266,4 +267,35 @@ button {
     .section-heading h2 {
         font-size: 19px;
     }
+}
+.btn {
+    background-color: #153058;
+    color: white;
+    padding: 10px 10px;
+    border: none;
+    border-radius: 8px;
+    font-size: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+.admin-form {
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+.admin-form input {
+     flex: 1;
+     min-width: 180px;
+     width: 100%;
+     padding: 10px;
+     margin-bottom: 10px;
+     border: 1px solid #ccc;
+     border-radius: 4px;
 }

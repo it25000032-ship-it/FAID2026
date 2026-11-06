@@ -101,3 +101,4 @@ addMaterialForm.addEventListener("submit", function (e) {
         alert("Error adding material. Please try again.");
         });
 });
+
