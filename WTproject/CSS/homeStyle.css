@@ -1,7 +1,6 @@
 * {
     box-sizing: border-box;
 }
-
 body {
     margin-left: 80px;
     margin-right: 80px;
@@ -9,7 +8,6 @@ body {
     font-family: Arial, Helvetica, sans-serif;
     background: rgb(237, 242, 255);
 }
-
 header {
     position: fixed;
     top: 0;
@@ -23,7 +21,6 @@ header {
     padding: 30px 50px;
     background-color: #ffffff;
 }
-
 .logo {
     width: 130px;
     height: 40px;
@@ -31,13 +28,11 @@ header {
     justify-content: center;
     align-items: center;
 }
-
 nav {
     display: flex;
     align-items: center;
     gap: 15px;
 }
-
 button {
     cursor: pointer;
     border-bottom: none;
@@ -48,14 +43,12 @@ button {
     background-color: rgb(21, 48, 88);
     font-size: 0.9rem;
 }
-
 .hero {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     gap: 30px;
 }
-
 .category_material {
     width: 100%;
     display: flex;
@@ -68,7 +61,6 @@ button {
     border: none;
     box-shadow: none;
 }
-
 category_material .category {
         padding: 12px 18px;
         background: #cbdcf7;
@@ -80,18 +72,15 @@ category_material .category {
         cursor: pointer;
         transition: all 0.25s ease;
 }
-
  .category_material .category:hover {
             background: #cbdcf7;
             transform: translateY(-2px);
  }
-
  .category_material .category.active {
             background: #355681;
             color: white;
             box-shadow: 0 4px 10px #35568130;
  }
-
 .hero-content {
     flex: 1;
     min-width: 280px;
@@ -102,7 +91,6 @@ category_material .category {
     gap: 18px;
     padding: 25px 0;
 }
-
 .hero-content h1 {
         margin: 0;
         color: #244b82;
@@ -110,7 +98,6 @@ category_material .category {
         font-weight: 700;
         line-height: 1.2;
 }
-
 .hero-content h2 {
         margin: 0;
         color: #64748b;
@@ -119,7 +106,6 @@ category_material .category {
         line-height: 1.8;
         max-width: 520px;
 }
-
 .hero-content form {
         display: flex;
         align-items: center;
@@ -131,7 +117,6 @@ category_material .category {
         border-radius: 25px;
         box-sizing: border-box;
 }
-
 .hero-content input[type="search"] {
         flex: 1;
         min-width: 0;
@@ -271,20 +256,17 @@ we4
     border: 2px dashed #9bb5d5;
 }
 
-    .Add-material span {
-        font-size: 45px;
-        color: #355681;
-    }
-
-    .Add-material h3 {
-        color: #355681;
-        margin: 10px 0;
-    }
-
-    .Add-material p {
-        color: #777;
-    }
-
+.Add-material span {
+    font-size: 45px;
+    color: #355681;
+}
+.Add-material h3 {
+    color: #355681;
+    margin: 10px 0;
+}
+.Add-material p {
+    color: #777;
+}
 .modal {
     display: none;
     position: fixed;
@@ -295,7 +277,6 @@ we4
     align-items: center;
     padding: 20px;
 }
-
 .modal-content {
     background: white;
     width: 100%;
@@ -307,25 +288,21 @@ we4
     position: relative;
     box-sizing: border-box;
 }
-
 .modal-content h2 {
     color: #355681;
     text-align: center;
     margin-bottom: 25px;
 }
-
 .modal-content form {
     display: flex;
     flex-direction: column;
     gap: 10px;
 }
-
 .modal-content label {
     color: #355681;
     font-weight: 600;
     margin-top: 5px;
 }
-
 .modal-content input,
 .modal-content select,
 .modal-content textarea {
@@ -337,12 +314,10 @@ we4
     font-size: 14px;
     font-family: inherit;
 }
-
 .modal-content textarea {
     min-height: 90px;
     resize: vertical;
 }
-
 .modal-content form button {
     padding: 13px;
     background: #355681;
@@ -353,7 +328,6 @@ we4
     font-size: 15px;
     margin-top: 10px;
 }
-
 .close-modal {
     position: absolute;
     right: 18px;
