@@ -1,30 +1,52 @@
 <?php
     session_start();
     require_once __DIR__ . "/db.php";
+    header("Content-Type: application/json; charset=UTF-8");
+    mysqli_report(MYSQLI_REPORT_OFF);
+
+    function sendResponse($success, $message) {
+        echo json_encode([
+            "success" => $success,
+            "message" => $message
+        ]);
+        exit;
+    }
+
     if ($_SERVER["REQUEST_METHOD"] !== "POST") {
-        exit("Invalid request.");
+        sendResponse(false, "Invalid request.");
     }
-    $email = trim($_POST["email"] ?? "");
+
+    $email    = trim($_POST["email"] ?? "");
     $password = $_POST["password"] ?? "";
+
     if ($email === "" || $password === "") {
-        exit("Please fill in all fields.");
+        sendResponse(false, "Please fill in all fields.");
     }
-    $sql = "SELECT id, companyName, password FROM users WHERE email = ?";
+
+    $sql = "SELECT company_id, company_name, password_hash
+            FROM companies
+            WHERE email = ?";
+
     $stmt = $conn->prepare($sql);
+    if (!$stmt) {
+        $conn->close();
+        sendResponse(false, "Login failed. Please try again.");
+    }
+
     $stmt->bind_param("s", $email);
     $stmt->execute();
     $result = $stmt->get_result();
-    if ($row = $result->fetch_assoc()) {
-        if (password_verify($password, $row["password"])) {
-            $_SESSION["user_id"] = $row["id"];
-            $_SESSION["companyName"] = $row["companyName"];
-            echo "Login successful! Welcome " . htmlspecialchars($row["companyName"]);
-        } else {
-            echo "Invalid email or password.";
-        }
-    } else {
-        echo "Invalid email or password.";
-    }
+    $row = $result->fetch_assoc();
+
     $stmt->close();
     $conn->close();
+
+    if ($row && password_verify($password, $row["password_hash"])) {
+        session_regenerate_id(true);
+        $_SESSION["user_id"]     = $row["company_id"];
+        $_SESSION["companyName"] = $row["company_name"];
+        sendResponse(true, "Login successful! Welcome " . $row["company_name"]);
+    }
+
+    sendResponse(false, "Invalid email or password.");
 ?>

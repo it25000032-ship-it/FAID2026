@@ -68,7 +68,7 @@ require_once __DIR__ . "/FaidProject/admin_check.php";
             </div>
             <div id="companyForm" class="admin-form" style="display:none;">
                 <h3>Add New Company</h3>
-                <form action="FaidProject/add_company.php" method="POST">
+                <form action="FaidProject/addCompany.php" method="POST">
                     <input type="text" name="company_name"placeholder="Company Name" required>
                     <input type="email" name="email"placeholder="Email" required>
                     <input type="text" name="phone"placeholder="Phone">
@@ -112,7 +112,7 @@ require_once __DIR__ . "/FaidProject/admin_check.php";
             </div>
             <div id="materialForm" class="admin-form" style="display:none;">
                 <h3>Add New Material</h3>
-                <form action="FaidProject/add_material.php" method="POST">
+                <form action="FaidProject/addmaterial.php" method="POST">
                     <input type="text" name="material_name"placeholder="Material Name" required>
                     <input type="text" name="category"placeholder="Category" required>
                     <textarea name="description"placeholder="Description"></textarea>
