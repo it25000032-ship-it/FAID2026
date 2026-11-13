@@ -6,13 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Buy and Sell</title>
 </head>
-
 <body>
     <header>
         <div class="logo">
             <img src="Img/FaidLogo.png" alt="logo" height="80" width="80">
         </div>
-
         <nav>
             <button type="button" aria-label="Search">&#8981;</button>
 
@@ -25,11 +23,8 @@
             </button>
         </nav>
     </header>
-
     <main>
         <section class="hero">
-
-
             <div class="category_material">
                 <button class="category active" data-category="all">all</button>
                 <button class="category" data-category="wood">Wooden materials</button>
@@ -38,7 +33,6 @@
                 <button class="category" data-category="plastic">Plastic materials</button>
                 <button class="category" data-category="electrical">Electrical materials</button>
             </div>
-
             <div class="hero-content">
                 <h1>
                     Buy and Sell<br>
@@ -50,8 +44,7 @@
                     explore different products, and buy what
                     you need at lower prices.
                 </h2>
-
-                <form   id="searchForm" action="#" method="get">
+                <form id="searchForm" action="#" method="get">
                     <input id="searchInput" type="search"
                            name="search"
                            placeholder="Search for products...">
@@ -60,75 +53,89 @@
                     </button>
                 </form>
             </div>
-
             <div class="hero-image">
                 <img src="Img/storehouse.jpg"
                      alt="Main image">
             </div>
         </section>
     </main>
-
     <div class="modal" id="registerM">
-
         <div class="modal-content">
             <button type="button" class="close-modal" aria-label="Close">
                 &times;
             </button>
             <h2>Create Account</h2>
-            <form id="registerF" action="Faid Project/register.php" method="POST">
+            <form id="registerF" action="FaidProject/register.php" method="POST">
                 <input type="text" name="companyName"
                        placeholder="Company Name" required>
-
                 <input type="email" name="email"
                        placeholder="Email Address" required>
-
                 <input type="tel" name="phone"
                        placeholder="Phone Number" required>
-
                 <input type="text" name="address"
                        placeholder="Company Address" required>
-
                 <input type="password" name="password"
                        placeholder="Password" required>
-
                 <button type="submit">Create Account</button>
             </form>
         </div>
     </div>
-
     <div class="modal" id="loginM">
         <div class="modal-content">
             <button type="button" class="close-modal"
                     aria-label="Close">
                 &times;
             </button>
-
             <h2>Welcome Back</h2>
-
-            <form id="loginForm" action="Faid Project/login.php" method="POST">
+            <form id="loginForm" action="FaidProject/login.php" method="POST">
                 <input type="email" name="email"
                        placeholder="Email Address" required>
-
                 <input type="password" name="password"
                        placeholder="Password" required>
-
                 <button type="submit">Sign In</button>
             </form>
         </div>
     </div>
     <section class="products">
-    <h2>Buy Now!</h2>
-    <div class="product-container">
-        <div class="product-card">
-            <img src="" alt="Product">
-            <h3>Product Name</h3>
-            <p>Product description</p>
-            <p>Price: $10</p>
-            <button>View Details</button>
-            <button>Add to Cart</button>
+        <div class="product-container">
+            <buttont typeof="button" class="Add-material" id="addMaterialBtn">
+                <span>+</span>
+                <h3>Add Material</h3>
+                <p>Add your supplus materials</p>
+            </buttont>
+            <div class="modal" id="addMaterialModal">
+                <div class="modal-content">
+                    <div class="close-modal" id="closeAddModel">&times;</div>
+                    <h2>Add New Material</h2>
+                    <form id="addMaterialForm" method="post" enctype="multipart/form-data">
+                        <input type="text" name="material_name" placeholder="Material Name" required>
+                        <label>Category</label>
+                        <select name="category" required>
+                            <option value="">Select Category</option>
+                            <option value="wood">Wooden materials</option>
+                            <option value="metal">Iron and metals</option>
+                            <option value="packaging">Packaging materials and cartons</option>
+                            <option value="plastic">Plastic materials</option>
+                            <option value="electrical">Electrical materials</option>
+                        </select>
+                        <label>description</label>
+                        <textarea name="description" placeholder="Material Description" required></textarea>
+                        <label>Quantity</label>
+                        <input type="number" name="quantity" min="1" required>
+                        <label>Price</label>
+                        <input type="number" name="price" min="0" step="0.01" required>
+                        <label>Material Image</label>
+                        <input type="file" name="image" accept="image/*">
+                        <button type="submit">Add Material</button>
+                    </form>
+                </div>
+            </div>
         </div>
-    </div>
-</section>
+    </section>
     <script src="JS/home.js"></script>
+    <footer class="footer1">
+        <p>© 2026 FAID. All Rights Reserved.</p>
+        <a href="FaidProject/admin_login.php">Admin Login</a>
+    </footer>
 </body>
 </html>
