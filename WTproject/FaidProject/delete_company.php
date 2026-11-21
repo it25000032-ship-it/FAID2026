@@ -1,112 +1,71 @@
-
 <?php
-require_once __DIR__ . "/db.php";
+require_once __DIR__ . "/security.php";
 require_once __DIR__ . "/admin_check.php";
+require_once __DIR__ . "/db.php";
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
     header("Location: ../admin.php#companies");
     exit();
 }
+require_csrf_token();
 
-$companyId = (int)($_POST["company_id"] ?? 0);
-
-if ($companyId <= 0) {
-    die("Invalid company ID.");
+$companyId = filter_var(post_string("company_id"), FILTER_VALIDATE_INT);
+if (!$companyId || $companyId < 1) {
+    http_response_code(400);
+    exit("Invalid company ID.");
+}
+if (!$conn->begin_transaction()) {
+    http_response_code(500);
+    exit("Could not delete the company. Please try again.");
 }
 
-$conn->begin_transaction();
-
-try {
-
-    // 1. Get all materials belonging to this company
-    $stmt = $conn->prepare(
-        "SELECT material_id FROM materials WHERE company_id = ?"
-    );
-    $stmt->bind_param("i", $companyId);
-    $stmt->execute();
-    $result = $stmt->get_result();
-
-    $materialIds = [];
-
-    while ($row = $result->fetch_assoc()) {
-        $materialIds[] = (int)$row["material_id"];
-    }
-
-    $stmt->close();
-
-    // 2. Delete order items connected to these materials
-    foreach ($materialIds as $materialId) {
-        $stmt = $conn->prepare(
-            "DELETE FROM order_items WHERE material_id = ?"
-        );
-        $stmt->bind_param("i", $materialId);
-        $stmt->execute();
-        $stmt->close();
-    }
-
-    // 3. Delete orders belonging to this company
-    $stmt = $conn->prepare(
-        "SELECT order_id FROM orders WHERE buyer_id = ?"
-    );
-    $stmt->bind_param("i", $companyId);
-    $stmt->execute();
-    $result = $stmt->get_result();
-
-    $orderIds = [];
-
-    while ($row = $result->fetch_assoc()) {
-        $orderIds[] = (int)$row["order_id"];
-    }
-
-    $stmt->close();
-
-    foreach ($orderIds as $orderId) {
-        $stmt = $conn->prepare(
-            "DELETE FROM order_items WHERE order_id = ?"
-        );
-        $stmt->bind_param("i", $orderId);
-        $stmt->execute();
-        $stmt->close();
-    }
-
-    // 4. Delete the company's orders
-    $stmt = $conn->prepare(
-        "DELETE FROM orders WHERE buyer_id = ?"
-    );
-    $stmt->bind_param("i", $companyId);
-    $stmt->execute();
-    $stmt->close();
-
-    // 5. Delete the company's materials
-    $stmt = $conn->prepare(
-        "DELETE FROM materials WHERE company_id = ?"
-    );
-    $stmt->bind_param("i", $companyId);
-    $stmt->execute();
-    $stmt->close();
-
-    // 6. Delete the company
-    $stmt = $conn->prepare(
-        "DELETE FROM companies WHERE company_id = ?"
-    );
-    $stmt->bind_param("i", $companyId);
-    $stmt->execute();
-
-    if ($stmt->affected_rows === 0) {
-        throw new Exception("Company not found.");
-    }
-
-    $stmt->close();
-
-    $conn->commit();
-    
-    header("Location: ../admin.php#companies");
-    exit();
-
-} catch (Throwable $e) {
-
+$stmt = $conn->prepare(
+    "SELECT
+        (SELECT COUNT(*) FROM materials WHERE company_id = ?) AS material_count,
+        (SELECT COUNT(*) FROM orders WHERE buyer_id = ?) AS order_count"
+);
+if (!$stmt) {
     $conn->rollback();
-
-    die("Delete failed: " . $e->getMessage());
+    error_log("Company dependency lookup prepare failed: " . $conn->error);
+    http_response_code(500);
+    exit("Could not delete the company. Please try again.");
 }
+$stmt->bind_param("ii", $companyId, $companyId);
+if (!$stmt->execute()) {
+    $conn->rollback();
+    error_log("Company dependency lookup failed: " . $stmt->error);
+    http_response_code(500);
+    exit("Could not delete the company. Please try again.");
+}
+$dependencies = $stmt->get_result()->fetch_assoc();
+$stmt->close();
+if ((int)$dependencies["material_count"] > 0 || (int)$dependencies["order_count"] > 0) {
+    $conn->rollback();
+    http_response_code(409);
+    exit("This company has offers or orders. Remove or reassign those records first.");
+}
+
+$stmt = $conn->prepare("DELETE FROM companies WHERE company_id = ?");
+if (!$stmt) {
+    $conn->rollback();
+    error_log("Company delete prepare failed: " . $conn->error);
+    http_response_code(500);
+    exit("Could not delete the company. Please try again.");
+}
+$stmt->bind_param("i", $companyId);
+if (!$stmt->execute() || $stmt->affected_rows !== 1) {
+    $conn->rollback();
+    error_log("Company delete failed: " . $stmt->error);
+    $stmt->close();
+    http_response_code(404);
+    exit("Company not found or could not be deleted.");
+}
+$stmt->close();
+if (!$conn->commit()) {
+    $conn->rollback();
+    http_response_code(500);
+    exit("Could not delete the company. Please try again.");
+}
+header("Location: ../admin.php#companies");
+exit();
 ?>

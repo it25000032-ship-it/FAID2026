@@ -1,42 +1,61 @@
-
 <?php
-require_once __DIR__ . "/db.php";
+require_once __DIR__ . "/security.php";
 require_once __DIR__ . "/admin_check.php";
+require_once __DIR__ . "/db.php";
 
-$id = (int)($_POST["order_id"] ?? 0);
-
-if ($_SERVER["REQUEST_METHOD"] !== "POST" || $id <= 0) {
+if ($_SERVER["REQUEST_METHOD"] !== "POST") {
     header("Location: ../admin.php#orders");
     exit();
 }
+require_csrf_token();
 
-$conn->begin_transaction();
+$orderId = filter_var(post_string("order_id"), FILTER_VALIDATE_INT);
+if (!$orderId || $orderId < 1) {
+    http_response_code(400);
+    exit("Invalid order ID.");
+}
+if (!$conn->begin_transaction()) {
+    http_response_code(500);
+    exit("Could not delete the order. Please try again.");
+}
 
-try {
-    $stmt = $conn->prepare(
-        "DELETE FROM order_items WHERE order_id = ?"
-    );
-    $stmt->bind_param("i", $id);
-    $stmt->execute();
-    $stmt->close();
-
-    $stmt = $conn->prepare(
-        "DELETE FROM orders WHERE order_id = ?"
-    );
-    $stmt->bind_param("i", $id);
-    $stmt->execute();
-
-    if ($stmt->affected_rows === 0) {
-        throw new Exception("Order not found.");
-    }
-
-    $stmt->close();
-    $conn->commit();
-
-    header("Location: ../admin.php#orders");
-    exit();
-
-} catch (Throwable $e) {
+$stmt = $conn->prepare("DELETE FROM order_items WHERE order_id = ?");
+if (!$stmt) {
     $conn->rollback();
-    die("Could not delete order: " . $e->getMessage());
+    error_log("Order items delete prepare failed: " . $conn->error);
+    http_response_code(500);
+    exit("Could not delete the order. Please try again.");
 }
+$stmt->bind_param("i", $orderId);
+if (!$stmt->execute()) {
+    $conn->rollback();
+    error_log("Order items delete failed: " . $stmt->error);
+    http_response_code(500);
+    exit("Could not delete the order. Please try again.");
+}
+$stmt->close();
+
+$stmt = $conn->prepare("DELETE FROM orders WHERE order_id = ?");
+if (!$stmt) {
+    $conn->rollback();
+    error_log("Order delete prepare failed: " . $conn->error);
+    http_response_code(500);
+    exit("Could not delete the order. Please try again.");
+}
+$stmt->bind_param("i", $orderId);
+if (!$stmt->execute() || $stmt->affected_rows !== 1) {
+    $conn->rollback();
+    error_log("Order delete failed: " . $stmt->error);
+    $stmt->close();
+    http_response_code(404);
+    exit("Order not found or could not be deleted.");
+}
+$stmt->close();
+if (!$conn->commit()) {
+    $conn->rollback();
+    http_response_code(500);
+    exit("Could not delete the order. Please try again.");
+}
+header("Location: ../admin.php#orders");
+exit();
+?>

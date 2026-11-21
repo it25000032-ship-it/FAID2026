@@ -1,12 +1,13 @@
 document.addEventListener("DOMContentLoaded", function () {
-
-    const searchInput  = document.getElementById("searchInput");
-    const searchBtn    = document.getElementById("searchBtn");
-    const searchModal  = document.getElementById("searchModal");
+    const searchInput = document.getElementById("searchInput");
+    const searchButton = document.getElementById("searchBtn");
+    const searchModal = document.getElementById("searchModal");
     const searchResults = document.getElementById("searchResults");
-    const closeBtn     = document.getElementById("closeSearchModal");
-
-    const BASE = "FaidProject/";
+    const closeButton = document.getElementById("closeSearchModal");
+    const statusModal = document.getElementById("statusModal");
+    const statusForm = document.getElementById("searchOrderStatusForm");
+    const base = "FaidProject/";
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || "";
 
     const config = {
         companies: {
@@ -15,51 +16,72 @@ document.addEventListener("DOMContentLoaded", function () {
             cols: ["company_id", "company_name", "email", "phone", "address"]
         },
         materials: {
-            title: "Materials",
+            title: "Offers",
             id: "material_id",
             cols: ["material_id", "material_name", "company_name", "category", "quantity", "price"]
         },
         orders: {
             title: "Orders",
             id: "order_id",
-            cols: ["order_id", "buyer_name", "order_date", "status"]
+            cols: ["order_id", "buyer_name", "items", "order_date", "item_quantity", "order_total", "status"]
         }
     };
 
-    function openModal()  { searchModal.style.display = "flex"; }
-    function closeModal() { searchModal.style.display = "none"; }
+    function openModal() {
+        searchModal.classList.add("is-visible");
+    }
 
-    closeBtn.addEventListener("click", closeModal);
-    searchModal.addEventListener("click", function (e) {
-        if (e.target === searchModal) closeModal();
+    function closeModal() {
+        searchModal.classList.remove("is-visible");
+    }
+
+    closeButton.addEventListener("click", closeModal);
+    searchModal.addEventListener("click", event => {
+        if (event.target === searchModal) closeModal();
+    });
+    document.getElementById("closeStatusModal").addEventListener("click", function () {
+        statusModal.classList.remove("is-visible");
+    });
+    statusModal.addEventListener("click", event => {
+        if (event.target === statusModal) statusModal.classList.remove("is-visible");
     });
 
     async function doSearch() {
-        const q = searchInput.value.trim();
-        if (!q) {
-            alert("Please type a keyword.");
+        const query = searchInput.value.trim();
+        if (!query) {
+            showToast("Please type a keyword.", "error");
             return;
         }
 
+        const originalText = searchButton.textContent;
+        searchButton.disabled = true;
+        searchButton.classList.add("is-loading");
+        searchButton.textContent = "Searching...";
         try {
-            const res = await fetch(BASE + "search_admin.php?" + new URLSearchParams({ q: q }));
-            const result = await res.json();
-
-            if (!result.success) {
-                alert(result.message || "Search failed.");
+            const response = await fetch(base + "search_admin.php?" +
+                new URLSearchParams({ q: query }));
+            const result = await response.json();
+            if (!response.ok || !result.success) {
+                showToast(result.message || "Search failed.", "error");
                 return;
             }
-
             renderResults(result);
             openModal();
-        } catch (err) {
-            console.error("Search Error:", err);
-            alert("Error connecting to search_admin.php.");
+            if (Object.values(result).filter(Array.isArray).every(rows => rows.length === 0)) {
+                showToast("No matching records found.", "error");
+            }
+        } catch (error) {
+            console.error("Search error:", error);
+            showToast("Could not search records. Please try again.", "error");
+        } finally {
+            searchButton.disabled = false;
+            searchButton.classList.remove("is-loading");
+            searchButton.textContent = originalText;
         }
     }
 
     function renderResults(result) {
-        searchResults.innerHTML = "";
+        searchResults.replaceChildren();
         let total = 0;
 
         Object.keys(config).forEach(function (type) {
@@ -67,65 +89,84 @@ document.addEventListener("DOMContentLoaded", function () {
             if (rows.length === 0) return;
             total += rows.length;
 
-            const cfg = config[type];
-
+            const definition = config[type];
             const heading = document.createElement("h4");
-            heading.textContent = cfg.title + " (" + rows.length + ")";
+            heading.textContent = definition.title + " (" + rows.length + ")";
             searchResults.appendChild(heading);
 
             const table = document.createElement("table");
-
-            const thead = document.createElement("thead");
-            const headRow = document.createElement("tr");
-            cfg.cols.concat(["action"]).forEach(function (c) {
-                const th = document.createElement("th");
-                th.textContent = c.replaceAll("_", " ");
-                headRow.appendChild(th);
+            const header = document.createElement("thead");
+            const headerRow = document.createElement("tr");
+            const columnLabels = {
+                material_id: "Offer ID",
+                material_name: "Offer name",
+                quantity: "Quantity",
+                price: "Price",
+                company_id: "Company ID",
+                company_name: "Company",
+                buyer_name: "Company",
+                order_id: "Order ID",
+                order_date: "Date",
+                order_total: "Order total",
+                item_quantity: "Quantity"
+            };
+            definition.cols.concat(["Action"]).forEach(column => {
+                const cell = document.createElement("th");
+                cell.textContent = columnLabels[column] || column.replaceAll("_", " ");
+                headerRow.appendChild(cell);
             });
-            thead.appendChild(headRow);
-            table.appendChild(thead);
+            header.appendChild(headerRow);
+            table.appendChild(header);
 
-            const tbody = document.createElement("tbody");
-
+            const body = document.createElement("tbody");
             rows.forEach(function (item) {
-                const tr = document.createElement("tr");
-
-                cfg.cols.forEach(function (c) {
-                    const td = document.createElement("td");
-                    td.textContent = item[c] ?? "";
-                    tr.appendChild(td);
+                const row = document.createElement("tr");
+                definition.cols.forEach(column => {
+                    const cell = document.createElement("td");
+                    cell.textContent = column === "order_total"
+                        ? Number(item[column] ?? 0).toFixed(2) + " IQD"
+                        : (item[column] ?? "");
+                    row.appendChild(cell);
                 });
 
                 const actions = document.createElement("td");
+                if (type !== "orders") {
+                    const editButton = document.createElement("button");
+                    editButton.type = "button";
+                    editButton.className = "btn";
+                    editButton.textContent = "Edit";
+                    editButton.addEventListener("click", () => editItem(type, item));
+                    actions.appendChild(editButton);
+                }
 
-                const editBtn = document.createElement("button");
-                editBtn.type = "button";
-                editBtn.className = "btn";
-                editBtn.textContent = "Edit";
-                editBtn.addEventListener("click", function () {
-                    editItem(type, item);
+                const deleteButton = document.createElement("button");
+                deleteButton.type = "button";
+                deleteButton.className = "btn";
+                deleteButton.textContent = "Delete";
+                deleteButton.addEventListener("click", () => {
+                    deleteItem(type, item[definition.id]);
                 });
-
-                const delBtn = document.createElement("button");
-                delBtn.type = "button";
-                delBtn.className = "btn";
-                delBtn.textContent = "Delete";
-                delBtn.addEventListener("click", function () {
-                    deleteItem(type, item[cfg.id]);
-                });
-
-                actions.appendChild(editBtn);
-                actions.appendChild(delBtn);
-                tr.appendChild(actions);
-                tbody.appendChild(tr);
+                actions.appendChild(deleteButton);
+                if (type === "orders") {
+                    const statusButton = document.createElement("button");
+                    statusButton.type = "button";
+                    statusButton.className = "btn";
+                    statusButton.textContent = "Update status";
+                    statusButton.addEventListener("click", () => openStatusModal(item));
+                    actions.appendChild(statusButton);
+                }
+                row.appendChild(actions);
+                body.appendChild(row);
             });
-
-            table.appendChild(tbody);
+            table.appendChild(body);
             searchResults.appendChild(table);
         });
 
         if (total === 0) {
-            searchResults.textContent = "No results found.";
+            const empty = document.createElement("p");
+            empty.className = "empty-state";
+            empty.textContent = "No results found. Try a different keyword.";
+            searchResults.appendChild(empty);
         }
     }
 
@@ -136,74 +177,106 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function editItem(type, item) {
+        closeModal();
         if (type === "companies") {
-            closeModal();
-            document.getElementById("editCompanyId").value      = item.company_id;
-            document.getElementById("editCompanyName").value    = item.company_name ?? "";
-            document.getElementById("editCompanyEmail").value   = item.email ?? "";
-            document.getElementById("editCompanyPhone").value   = item.phone ?? "";
+            document.getElementById("updateCompanyForm").reset();
+            document.getElementById("editCompanyId").value = item.company_id;
+            document.getElementById("editCompanyName").value = item.company_name ?? "";
+            document.getElementById("editCompanyEmail").value = item.email ?? "";
+            document.getElementById("editCompanyPhone").value = item.phone ?? "";
             document.getElementById("editCompanyAddress").value = item.address ?? "";
+            document.getElementById("editCompanyDescription").value = item.description ?? "";
             showForm("editCompanyForm");
-
         } else if (type === "materials") {
-            closeModal();
-            document.getElementById("editMaterialId").value       = item.material_id;
-            document.getElementById("editMaterialName").value     = item.material_name ?? "";
+            document.getElementById("updateMaterialForm").reset();
+            document.getElementById("editMaterialId").value = item.material_id;
+            document.getElementById("editMaterialName").value = item.material_name ?? "";
             document.getElementById("editMaterialCategory").value = item.category ?? "";
+            document.getElementById("editMaterialDescription").value = item.description ?? "";
             document.getElementById("editMaterialQuantity").value = item.quantity ?? "";
-            document.getElementById("editMaterialPrice").value    = item.price ?? "";
+            document.getElementById("editMaterialPrice").value = item.price ?? "";
             showForm("editMaterialForm");
-
-        } else if (type === "orders") {
-            const status = prompt(
-                "New status (Pending / Completed / Cancelled):",
-                item.status
-            );
-            if (status === null) return;
-            updateOrderStatus(item.order_id, status.trim());
         }
     }
 
-    async function updateOrderStatus(id, status) {
+    function openStatusModal(order) {
+        const statusSelect = document.getElementById("searchOrderStatus");
+        const transitions = {
+            Pending: ["Pending", "Approved", "Rejected", "Completed"],
+            Approved: ["Approved", "Rejected", "Completed"],
+            Rejected: ["Rejected"],
+            Completed: ["Completed"]
+        };
+        statusSelect.replaceChildren();
+        (transitions[order.status] || [order.status]).forEach(status => {
+            const option = document.createElement("option");
+            option.value = status;
+            option.textContent = status;
+            option.selected = status === order.status;
+            statusSelect.appendChild(option);
+        });
+        document.getElementById("searchOrderId").value = order.order_id;
+        statusModal.classList.add("is-visible");
+        statusSelect.focus();
+    }
+
+    statusForm.addEventListener("submit", async function (event) {
+        event.preventDefault();
+        if (statusForm.dataset.submitting === "true") return;
+        statusForm.dataset.submitting = "true";
+        const submitButton = statusForm.querySelector('button[type="submit"]');
+        const originalText = submitButton.textContent;
+        submitButton.disabled = true;
+        submitButton.classList.add("is-loading");
+        submitButton.textContent = "Updating...";
         try {
-            const res = await fetch(BASE + "update_order_status.php", {
+            const response = await fetch(base + "update_order.php", {
                 method: "POST",
-                body: new URLSearchParams({ id: id, status: status })
+                body: new FormData(statusForm),
+                headers: { "X-CSRF-Token": csrfToken }
             });
-            const result = await res.json();
-            if (!result.success) {
-                alert(result.message || "Update failed.");
+            const result = await response.json();
+            if (!response.ok || !result.success) {
+                showToast(result.message || "Could not update the order.", "error");
                 return;
             }
-            doSearch();
-        } catch (err) {
-            console.error(err);
-            alert("Error updating order.");
+            showToast(result.message || "Order status updated.");
+            statusModal.classList.remove("is-visible");
+            await doSearch();
+        } catch (error) {
+            console.error("Order status update error:", error);
+            showToast("Could not update the order. Please try again.", "error");
+        } finally {
+            statusForm.dataset.submitting = "false";
+            submitButton.disabled = false;
+            submitButton.classList.remove("is-loading");
+            submitButton.textContent = originalText;
         }
-    }
+    });
 
     async function deleteItem(type, id) {
-        if (!confirm("Are you sure you want to delete this record?")) return;
-
+        if (!confirm("Delete this record? This action cannot be undone.")) return;
         try {
-            const res = await fetch(BASE + "delete_item.php", {
+            const response = await fetch(base + "delete_item.php", {
                 method: "POST",
-                body: new URLSearchParams({ type: type, id: id })
+                body: new URLSearchParams({ type: type, id: id }),
+                headers: { "X-CSRF-Token": csrfToken }
             });
-            const result = await res.json();
-            if (!result.success) {
-                alert(result.message || "Delete failed.");
+            const result = await response.json();
+            if (!response.ok || !result.success) {
+                showToast(result.message || "Delete failed.", "error");
                 return;
             }
-            doSearch();
-        } catch (err) {
-            console.error(err);
-            alert("Error deleting record.");
+            showToast(result.message || "Record deleted.");
+            await doSearch();
+        } catch (error) {
+            console.error("Delete error:", error);
+            showToast("Could not delete the record. Please try again.", "error");
         }
     }
 
-    searchBtn.addEventListener("click", doSearch);
-    searchInput.addEventListener("keydown", function (e) {
-        if (e.key === "Enter") doSearch();
+    searchButton.addEventListener("click", doSearch);
+    searchInput.addEventListener("keydown", event => {
+        if (event.key === "Enter") doSearch();
     });
 });

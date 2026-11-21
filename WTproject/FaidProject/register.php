@@ -1,91 +1,75 @@
 <?php
-    require_once __DIR__ . "/db.php";
-    header("Content-Type: application/json; charset=UTF-8");
-    mysqli_report(MYSQLI_REPORT_OFF);
+require_once __DIR__ . "/security.php";
+require_once __DIR__ . "/db.php";
 
-    function sendResponse($success, $message) {
-        echo json_encode([
-            "success" => $success,
-            "message" => $message
-        ]);
-        exit;
-    }
+header("Content-Type: application/json; charset=UTF-8");
 
-    if ($_SERVER["REQUEST_METHOD"] !== "POST") {
-        sendResponse(false, "Invalid request.");
-    }
+function sendResponse($success, $message, $status = 200)
+{
+    http_response_code($status);
+    echo json_encode([
+        "success" => $success,
+        "message" => $message
+    ], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
+    exit;
+}
 
-    $companyName = trim($_POST["companyName"] ?? "");
-    $email       = trim($_POST["email"] ?? "");
-    $phone       = trim($_POST["phone"] ?? "");
-    $address     = trim($_POST["address"] ?? "");
-    $password    = $_POST["password"] ?? "";
+if ($_SERVER["REQUEST_METHOD"] !== "POST") {
+    sendResponse(false, "Invalid request method.", 405);
+}
+require_csrf_token(true);
 
-    if (
-        $companyName === "" ||
-        $email === "" ||
-        $phone === "" ||
-        $address === "" ||
-        $password === ""
-    ) {
-        sendResponse(false, "Please fill in all fields.");
-    }
+$companyName = trim(post_string("companyName"));
+$email = trim(post_string("email"));
+$phone = trim(post_string("phone"));
+$address = trim(post_string("address"));
+$password = post_string("password");
 
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        sendResponse(false, "Invalid email address.");
-    }
+if (
+    $companyName === "" ||
+    strlen($companyName) > 150 ||
+    strlen($email) > 150 ||
+    strlen($phone) > 30 ||
+    strlen($address) > 255 ||
+    $email === "" ||
+    $phone === "" ||
+    $address === "" ||
+    $password === "" ||
+    strlen($password) > 1024
+) {
+    sendResponse(false, "Please fill in all fields.", 400);
+}
+if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    sendResponse(false, "Invalid email address.", 400);
+}
+if (strlen($password) < 8 || strlen($password) > 1024) {
+    sendResponse(false, "Password must be between 8 and 1024 characters.", 400);
+}
 
-    if (strlen($password) < 8) {
-        sendResponse(false, "Password must be at least 8 characters.");
-    }
+$passwordHash = password_hash($password, PASSWORD_DEFAULT);
+$stmt = $conn->prepare(
+    "INSERT INTO companies (company_name, email, phone, address, password_hash)
+     VALUES (?, ?, ?, ?, ?)"
+);
+if (!$stmt) {
+    error_log("Company registration prepare failed: " . $conn->error);
+    sendResponse(false, "Registration failed. Please try again.", 500);
+}
 
-    $check = $conn->prepare(
-        "SELECT company_id FROM companies WHERE email = ?"
-    );
-    $check->bind_param("s", $email);
-    $check->execute();
-    $result = $check->get_result();
-
-    if ($result->num_rows > 0) {
-        $check->close();
-        $conn->close();
-        sendResponse(false, "This email is already registered. Please use another email.");
-    }
-    $check->close();
-
-    $passwordHash = password_hash($password, PASSWORD_DEFAULT);
-
-    $sql = "INSERT INTO companies
-            (company_name, email, phone, address, password_hash)
-            VALUES (?, ?, ?, ?, ?)";
-
-    $stmt = $conn->prepare($sql);
-    if (!$stmt) {
-        $conn->close();
-        sendResponse(false, "Failed to prepare registration.");
-    }
-
-    $stmt->bind_param(
-        "sssss",
-        $companyName,
-        $email,
-        $phone,
-        $address,
-        $passwordHash
-    );
-
-    if ($stmt->execute()) {
-        $stmt->close();
-        $conn->close();
-        sendResponse(true, "Registration successful!");
-    }
-
-    $errno = $stmt->errno;
+$stmt->bind_param("sssss", $companyName, $email, $phone, $address, $passwordHash);
+if ($stmt->execute()) {
     $stmt->close();
     $conn->close();
+    sendResponse(true, "Registration successful! Please sign in.");
+}
 
-    if ($errno == 1062) {
-        sendResponse(false, "This email is already registered. Please use another email.");
-    }
-    sendResponse(false, "Registration failed. Please try again.");
+$duplicateEmail = $stmt->errno === 1062;
+error_log("Company registration failed: " . $stmt->error);
+$stmt->close();
+$conn->close();
+sendResponse(
+    false,
+    $duplicateEmail ? "This email is already registered." : "Registration failed. Please try again.",
+    $duplicateEmail ? 409 : 500
+);
 ?>

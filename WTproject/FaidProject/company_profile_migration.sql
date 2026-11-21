@@ -1,0 +1,2 @@
+ALTER TABLE companies
+    ADD COLUMN IF NOT EXISTS description VARCHAR(500) NULL AFTER address;

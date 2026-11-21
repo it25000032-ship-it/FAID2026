@@ -30,7 +30,7 @@ CREATE TABLE admins (
 --
 
 INSERT INTO admins (admin_id, admin_name, email, password_hash, created_at) VALUES
-(1, 'Admin', 'admin@faid.com', 'Admin@123', '2026-11-06 15:53:17');
+(1, 'Admin', 'admin@faid.com', '$2y$10$Km9LWllA0t.5llEc1/1Yf.xy/F80/V5bwFEGx/aQuH2fPC3Jv54vq', '2026-11-06 15:53:17');
 
 -- --------------------------------------------------------
 
@@ -44,6 +44,7 @@ CREATE TABLE companies (
   email varchar(150) NOT NULL,
   phone varchar(30) NOT NULL,
   address varchar(255) NOT NULL,
+  description varchar(500) DEFAULT NULL,
   password_hash varchar(255) NOT NULL,
   created_at timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;

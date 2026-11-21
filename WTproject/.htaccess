@@ -1,0 +1,14 @@
+Options -Indexes
+SetEnv FAID_DB_NAME faidproject_demo
+
+<IfModule mod_headers.c>
+    <FilesMatch "\.(html?|php|css|js)$">
+        Header set Cache-Control "no-store, no-cache, must-revalidate, max-age=0"
+        Header set Pragma "no-cache"
+        Header set Expires "Thu, 01 Jan 1970 00:00:00 GMT"
+    </FilesMatch>
+</IfModule>
+
+<FilesMatch "^(faidproject\.sql|faid_demo_seed\.sql|FaidProject\.zip)$">
+    Require all denied
+</FilesMatch>

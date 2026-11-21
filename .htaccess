@@ -1,0 +1,10 @@
+Options -Indexes
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^(?:\.git|\.vs)(?:/|$) - [F,L]
+</IfModule>
+
+<FilesMatch "^(faidproject\.sql|WTproject\.zip)$">
+    Require all denied
+</FilesMatch>

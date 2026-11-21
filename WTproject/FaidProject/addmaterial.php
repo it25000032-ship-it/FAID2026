@@ -1,75 +1,81 @@
-
 <?php
-<<<<<<< HEAD
-   session_start();
-   require_once __DIR__ . "/db.php";
-   header("Content-Type: application/json; charset=UTF-8");
-   function sendResponse($success, $message) {
-         echo json_encode([
-         "success" => $success,
-         "message" => $message
-         ]);
-   exit;
-   }
-   if ($_SERVER["REQUEST_METHOD"] !== "POST") {
-         sendResponse(false, "Invalid request method.");
-   }
-   if (!isset($_SESSION["company_id"])) {
-         sendResponse(false, "Please login first.");
-   }
-   $companyId = $_SESSION["company_id"];
-   $materialName = trim($_POST["material_name"] ?? "");
-   $category = trim($_POST["category"] ?? "");
-   $description = trim($_POST["description"] ?? "");
-   $quantity = $_POST["quantity"] ?? "";
-   $price = $_POST["price"] ?? "";
-   if ($materialName === "" ||$category === "" ||$description === "" ||$quantity === "" ||$price === "") {
-     sendResponse(false, "Please fill in all fields.");
-   }
-   if (!is_numeric($quantity) ||!is_numeric($price) || $quantity <= 0 ||$price < 0) {
-    sendResponse(false, "Invalid quantity or price.");
-   }
-  $quantity = (int)$quantity;
-  $price = (float)$price;
-  $imagePath = null;
-  if (isset($_FILES["image"]) && $_FILES["image"]["error"] !== UPLOAD_ERR_NO_FILE) {
-    if ($_FILES["image"]["error"] !== UPLOAD_ERR_OK) {
-        sendResponse(false, "Image upload failed.");
-    }
-    $allowedTypes = [
-        "image/jpeg" => "jpg",
-        "image/png" => "png",
-        "image/gif" => "gif",
-        "image/webp" => "webp"
-    ];
-    $fileType = mime_content_type($_FILES["image"]["tmp_name"]);
-    if (!isset($allowedTypes[$fileType])) {
-        sendResponse(false, "Only JPG, PNG, GIF and WEBP images are allowed.");
-    }
-    if ($_FILES["image"]["size"] > 5 * 1024 * 1024) {
-        sendResponse(false, "Image size exceeds 5MB.");
-    }
-    $uploadDir = __DIR__ . "/uploads/";
-    if (!is_dir($uploadDir) && !mkdir($uploadDir, 0755, true)) {
-        sendResponse(false, "Failed to create uploads folder.");
-    }
-    $fileName = bin2hex(random_bytes(16)) . "." . $allowedTypes[$fileType];
-    $destination = $uploadDir . $fileName;
-    if (!move_uploaded_file($_FILES["image"]["tmp_name"], $destination)) {
-        sendResponse(false, "Failed to save image.");
-    }
-    $imagePath = "uploads/" . $fileName;
+require_once __DIR__ . "/security.php";
+require_once __DIR__ . "/material_images.php";
+
+header("Content-Type: application/json; charset=UTF-8");
+
+function sendMaterialResponse($success, $message, $status = 200, $extra = [])
+{
+    http_response_code($status);
+    echo json_encode(array_merge([
+        "success" => $success,
+        "message" => $message
+    ], $extra), JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
+    exit;
 }
 
+if ($_SERVER["REQUEST_METHOD"] !== "POST") {
+    sendMaterialResponse(false, "Invalid request method.", 405);
+}
+require_csrf_token(true);
 
-$sql = "INSERT INTO materials(company_id, material_name, category, description, quantity, price, image_path) VALUES (?, ?, ?, ?, ?, ?, ?)";
-$stmt = $conn->prepare($sql);
+if (isset($_SESSION["admin_id"])) {
+    $companyId = filter_var(post_string("company_id"), FILTER_VALIDATE_INT);
+    if (!$companyId || $companyId < 1) {
+        sendMaterialResponse(false, "Select a valid company.", 400);
+    }
+} elseif (!empty($_SESSION["company_id"])) {
+    $companyId = (int)$_SESSION["company_id"];
+} else {
+    sendMaterialResponse(false, "Please sign in with a company account first.", 401);
+}
+require_once __DIR__ . "/db.php";
+
+$materialName = trim(post_string("material_name"));
+$category = trim(post_string("category"));
+$description = trim(post_string("description"));
+$quantityInput = post_string("quantity");
+$priceInput = post_string("price");
+$allowedCategories = ["wood", "metal", "packaging", "plastic", "electrical"];
+
+if ($materialName === "" || $quantityInput === "" || $priceInput === "") {
+    sendMaterialResponse(false, "Please enter a name, quantity, and price.", 400);
+}
+if (strlen($materialName) > 150 || !in_array($category, $allowedCategories, true)) {
+    sendMaterialResponse(false, "Please enter a valid offer name and category.", 400);
+}
+if (
+    filter_var($quantityInput, FILTER_VALIDATE_INT) === false ||
+    (int)$quantityInput < 1 ||
+    (int)$quantityInput > 2147483647 ||
+    !is_numeric($priceInput) ||
+    (float)$priceInput < 0 ||
+    (float)$priceInput > 99999999.99
+) {
+    sendMaterialResponse(false, "Please enter a valid quantity and price.", 400);
+}
+
+$quantity = (int)$quantityInput;
+$price = (float)$priceInput;
+$imagePath = null;
+
+try {
+    $imagePath = save_material_image($_FILES["image"] ?? []);
+} catch (RuntimeException $error) {
+    sendMaterialResponse(false, $error->getMessage(), 400);
+}
+
+$stmt = $conn->prepare(
+    "INSERT INTO materials
+        (company_id, material_name, category, description, quantity, price, image_path)
+     VALUES (?, ?, ?, ?, ?, ?, ?)"
+);
 if (!$stmt) {
-    if ($imagePath !== null) {
-        unlink(__DIR__ . "/" . $imagePath);
-    }
-    sendResponse(false, "Database error: " . $conn->error);
+    delete_material_image($imagePath);
+    error_log("Material insert prepare failed: " . $conn->error);
+    sendMaterialResponse(false, "Could not publish the offer. Please try again.", 500);
 }
+
 $stmt->bind_param(
     "isssids",
     $companyId,
@@ -80,60 +86,24 @@ $stmt->bind_param(
     $price,
     $imagePath
 );
-if ($stmt->execute()) {
+
+if (!$stmt->execute()) {
+    $errorNumber = $stmt->errno;
+    error_log("Material insert failed: " . $stmt->error);
     $stmt->close();
     $conn->close();
-    sendResponse(true, "Material added successfully.");
-} else {
-    $error = $stmt->error;
-    $stmt->close();
-    $conn->close();
-    if ($imagePath !== null && file_exists(__DIR__ . "/" . $imagePath)) {
-        unlink(__DIR__ . "/" . $imagePath);
-    }
-    sendResponse(false, "Failed to add material: " . $error);
+    delete_material_image($imagePath);
+    sendMaterialResponse(
+        false,
+        $errorNumber === 1452 ? "Select an existing company." : "Could not publish the offer. Please try again.",
+        $errorNumber === 1452 ? 400 : 500
+    );
 }
+
+$materialId = $stmt->insert_id;
+$stmt->close();
+$conn->close();
+sendMaterialResponse(true, "Offer published successfully.", 200, [
+    "material_id" => $materialId
+]);
 ?>
-=======
-require_once __DIR__ . "/db.php";
-require_once __DIR__ . "/admin_check.php";
-
-if ($_SERVER["REQUEST_METHOD"] !== "POST") {
-    header("Location: ../admin.php#materials");
-    exit();
-}
-
-$name = trim($_POST["material_name"] ?? "");
-$category = trim($_POST["category"] ?? "");
-$description = trim($_POST["description"] ?? "");
-$quantity = (int)($_POST["quantity"] ?? 0);
-$price = (float)($_POST["price"] ?? 0);
-$companyId = (int)($_POST["company_id"] ?? 0);
-
-if ($name === "" || $category === "" || $quantity <= 0 || $price < 0 || $companyId <= 0) {
-    die("Please enter valid material information.");
-}
-
-$stmt = $conn->prepare("
-    INSERT INTO materials
-    (company_id, material_name, category, description, quantity, price)
-    VALUES (?, ?, ?, ?, ?, ?)
-");
-
-$stmt->bind_param(
-    "isssid",
-    $companyId,
-    $name,
-    $category,
-    $description,
-    $quantity,
-    $price
-);
-
-if ($stmt->execute()) {
-    header("Location: ../admin.php#materials");
-    exit();
-}
-
-die("Could not add material: " . $stmt->error);
->>>>>>> 42718a812c035b95e793f87203a020a375100e0a
